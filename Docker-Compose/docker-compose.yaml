@@ -1,0 +1,51 @@
+version: "3"
+name: Read-it
+services:
+
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    restart: unless-stopped
+    env_file: ./envfiles/DB.env
+    ports:
+      - 27017:27017
+    networks:
+      - private
+    volumes:
+      - ..\backend\mongo\mongo-volume:/data/db
+
+  backend:
+    container_name: node
+    restart: unless-stopped
+    image: waer/backend:latest
+    env_file: ./envfiles/backend.env
+    networks:
+      - frontend_net
+      - private
+    depends_on:
+      - mongodb
+    ports:
+      - 3000:3000
+    links:
+      - mongodb
+    stdin_open: true
+    tty: true
+
+    
+  frontend:
+    container_name: Frontend
+    image: waer/frontend:latest
+    env_file: ./envfiles/frontend.env
+    networks:
+      - frontend_net
+    depends_on:
+      - backend
+    ports:
+      - "5000:5000"
+      - "80:80"
+
+
+
+networks:
+  private:
+  frontend_net:

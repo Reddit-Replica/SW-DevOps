@@ -1,0 +1,2 @@
+[servers]
+51.103.98.134 ansible_user=azureuser

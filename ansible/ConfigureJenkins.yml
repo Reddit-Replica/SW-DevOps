@@ -1,0 +1,77 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+  - name: Add Docker Group
+    group: name=docker state=present
+
+  - name: Install required system packages
+    apt:
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      state: latest
+      update_cache: true
+
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Update apt and install docker-ce
+    apt:
+      name: docker-ce
+      state: latest
+      update_cache: true
+
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+
+  - name: Ensure jenkins directory on docker host
+    file:
+      state: directory
+      owner: "1000"
+      group: "1000"
+      path: /share/jenkins
+
+  - name: Pull the latest official jenkins docker image
+    docker_image:
+      name: "jenkins/jenkins:lts"
+
+  - name: Create a container from the jenkins docker image
+    docker_container:
+      name: "jenkins-server"
+      image: "jenkins/jenkins"
+      ports:
+          - "8085:8080"
+          - "50000:50000"
+      volumes:
+          - "/share/jenkins:/var/jenkins_home"
+      state: present
+      recreate: no
+
+  # - name: Copy systemd service script to start and stop the jenkins container
+  #   copy: src=files/jenkins.service dest=/etc/systemd/system
+
+  # - name: Reload systemctl
+  #   shell: systemctl restart docker-jenkins
+
+  # - name: Enable the docker-jenkins service
+  #   shell: systemctl enable docker-jenkins
+
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureJenkins.yml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
+# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
+# sudo docker exec 16f8776ff088 cat /var/jenkins_home/secrets/initialAdminPassword
+# sudo docker stop 16f8776ff088
