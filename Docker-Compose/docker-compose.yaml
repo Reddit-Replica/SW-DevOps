@@ -1,18 +1,19 @@
 version: "3"
-name: Read-it
 services:
 
   mongodb:
     container_name: mongodb
     image: mongo
+    command: mongod --auth
     restart: unless-stopped
     env_file: ./envfiles/DB.env
-    ports:
+    ports:  
       - 27017:27017
     networks:
       - private
     volumes:
-      - ..\backend\mongo\mongo-volume:/data/db
+      - /Read-it/mongoData:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
   backend:
     container_name: node
@@ -43,8 +44,6 @@ services:
     ports:
       - "5000:5000"
       - "80:80"
-
-
 
 networks:
   private:

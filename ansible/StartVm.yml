@@ -1,0 +1,43 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+
+  - name: copying file
+    become: true 
+    copy:
+      src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Docker-Compose/
+      dest: /Read-it/deployment
+
+  - name: Create Docker Jenkins Container
+    docker_container:
+      name: jenkins_con
+      image: jenkins/jenkins
+      ports:
+       - "8080:8080"
+       - "50000:50000"
+      volumes:
+       - "jenkins_home:/var/jenkins_home"
+       - "/var/run/docker.sock:/var/run/docker.sock"
+      state: started
+
+  - name: Pull the latest official jenkins docker image
+    docker_image:
+      name: "waer/frontend:latest"
+
+  - name: Pull the latest official jenkins docker image
+    docker_image:
+      name: "waer/backend:latest"
+
+  - name: deploy Docker Compose stack
+    community.docker.docker_compose:
+      project_src: /Read-it/deployment/
+      files:
+      - docker-compose.yaml
+
+# ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/StartVm.yml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
+# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
+# sudo docker exec 7bf7addc5a37 cat /var/jenkins_home/secrets/initialAdminPassword
+# sudo docker stop 16f8776ff088

@@ -1,0 +1,22 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+
+  # - name: copy jenkins Data To local
+  #   fetch:
+  #    src: /Read-it/mongoData/
+  #    dest: /mnt/d/Created_by_me/SW_Reops/Read-it/
+  
+  - name: copy jenkins Data To local
+    fetch:
+     src: /var/jenkins_home
+     dest: /mnt/d/Created_by_me/SW_Reops/Read-it/
+  
+
+# ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/StopVm.yml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
+# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
+# sudo docker exec 7bf7addc5a37 cat /var/jenkins_home/secrets/initialAdminPassword
+# sudo docker stop 16f8776ff088

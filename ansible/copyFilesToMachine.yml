@@ -1,0 +1,17 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+    - name: copying file
+      become: true 
+      copy:
+        src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Docker-Compose/
+        dest: /Read-it/deployment
+
+
+# ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/copyFilesToMachine.yml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
+# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
+# sudo docker exec 7e1c7d89bef7 cat /var/jenkins_home/secrets/initialAdminPassword
+# sudo docker stop 16f8776ff088
