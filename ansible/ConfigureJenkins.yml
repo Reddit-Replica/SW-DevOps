@@ -37,6 +37,12 @@
   - name: Install Docker Module for Python
     pip:
       name: docker
+
+  - name: Add remote "ubuntu" user to "docker" group
+    user:
+      name: root
+      group: docker
+      append: yes
   
   - name: Install Docker compose
     pip:
@@ -53,26 +59,36 @@
     docker_image:
       name: "jenkins/jenkins:lts"
 
+  - name: copy jenkins image
+    become: true 
+    copy:
+      src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/DockerFiles/Dockerfile
+      dest: /Read-it/JenkinsDockerFile/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: build docker_jenkins image
+    community.docker.docker_image:
+      build:
+        path: /Read-it/JenkinsDockerFile/
+      name: docker_jenkins
+      tag: v1
+      source: build
+
+
   - name: Create Docker Jenkins Container
     docker_container:
       name: jenkins
-      image: jenkins/jenkins
+      image: docker_jenkins:v1
       ports:
-       - "8085:8080"
+       - "8080:8080"
        - "50000:50000"
       volumes:
-       - "/Read-it/jenkins_home:/var/jenkins_home"
+       - "jenkins_home:/var/jenkins_home"
        - "/var/run/docker.sock:/var/run/docker.sock"
       state: started
 
-  - name: Copy systemd service script to start and stop the jenkins container
-    copy: src=files/jenkins.service dest=/etc/systemd/system
-
-  - name: Reload systemctl
-    shell: systemctl restart docker-jenkins
-
-  - name: Enable the docker-jenkins service
-    shell: systemctl enable docker-jenkins
 
 # ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureJenkins.yml --private-key=~/.ssh/MainVm_key.pem
 # ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem

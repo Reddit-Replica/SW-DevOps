@@ -3,7 +3,7 @@
   become_user: root
   tasks:
 
-  - name: copying file
+  - name: copying deploment files
     become: true 
     copy:
       src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Docker-Compose/
@@ -11,8 +11,8 @@
 
   - name: Create Docker Jenkins Container
     docker_container:
-      name: jenkins_con
-      image: jenkins/jenkins
+      name: jenkins
+      image: docker_jenkins:v1
       ports:
        - "8080:8080"
        - "50000:50000"
@@ -21,11 +21,17 @@
        - "/var/run/docker.sock:/var/run/docker.sock"
       state: started
 
-  - name: Pull the latest official jenkins docker image
+  - name: Run container
+    become: True
+    shell:
+      cmd: "docker-compose down"
+      chdir: /Read-it/deployment/
+
+  - name: Pull the latest frontend image
     docker_image:
       name: "waer/frontend:latest"
 
-  - name: Pull the latest official jenkins docker image
+  - name: Pull the latest backend image
     docker_image:
       name: "waer/backend:latest"
 
@@ -34,6 +40,7 @@
       project_src: /Read-it/deployment/
       files:
       - docker-compose.yaml
+      pull : yes
 
 # ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
 # ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/StartVm.yml --private-key=~/.ssh/MainVm_key.pem
