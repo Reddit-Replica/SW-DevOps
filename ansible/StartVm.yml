@@ -9,6 +9,13 @@
       src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Docker-Compose/
       dest: /Read-it/deployment
 
+  - name: check permission of docker socke
+    ansible.builtin.file:
+      path: /var/run/docker.sock
+      owner: "root"
+      group: "root"
+      mode: '0666'
+
   - name: Create Docker Jenkins Container
     docker_container:
       name: jenkins
@@ -19,9 +26,16 @@
       volumes:
        - "jenkins_home:/var/jenkins_home"
        - "/var/run/docker.sock:/var/run/docker.sock"
+       - "/Read-it:/Read-it"
+       - /usr/bin/docker:/usr/bin/docker
       state: started
 
-  - name: Run container
+  - name: Creates directory for backend logs
+    file:
+      path: /Read-it/Backend/log
+      state: directory
+
+  - name: down application for check for new version
     become: True
     shell:
       cmd: "docker-compose down"
@@ -46,5 +60,4 @@
 # ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/StartVm.yml --private-key=~/.ssh/MainVm_key.pem
 # ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
 # sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
-# sudo docker exec 7bf7addc5a37 cat /var/jenkins_home/secrets/initialAdminPassword
-# sudo docker stop 16f8776ff088
+# sudo docker run -d -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home docker_jenkins:v1

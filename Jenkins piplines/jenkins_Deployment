@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+  	environment {
+		DOCKERHUB_CREDENTIALS=credentials('Dockerhub')
+	}
+
+    stages {
+
+        stage('pull docker Latest Images') {
+            steps {
+                echo "========docker pull images ========"
+                sh """
+                    docker pull waer/backend:latest
+                    docker pull waer/frontend:latest
+                """    
+            }
+
+        }
+
+        stage("stop the current production"){
+            steps{
+                sh """
+                cd /Read-it/deployment
+                ls
+                docker-compose down
+                """
+            }
+
+        }
+
+        stage('start the new production') {
+            steps {
+                sh """
+                cd /Read-it/deployment
+                ls
+                docker-compose up -d
+                """
+            }
+        }
+
+    }
+}

@@ -38,9 +38,9 @@
     pip:
       name: docker
 
-  - name: Add remote "ubuntu" user to "docker" group
+  - name: Add remote "azureuser" user to "docker" group
     user:
-      name: root
+      name: azureuser
       group: docker
       append: yes
   
@@ -54,6 +54,13 @@
       owner: "1000"
       group: "1000"
       path: /share/jenkins
+  
+  # - name: check permission of docker sock
+  #   ansible.builtin.file:
+  #     path: "{{ myfile }}"
+  #     owner: "devops"
+  #     group: "users"
+  #     mode: '0777'
 
   - name: Pull the latest official jenkins docker image
     docker_image:
@@ -77,21 +84,8 @@
       source: build
 
 
-  - name: Create Docker Jenkins Container
-    docker_container:
-      name: jenkins
-      image: docker_jenkins:v1
-      ports:
-       - "8080:8080"
-       - "50000:50000"
-      volumes:
-       - "jenkins_home:/var/jenkins_home"
-       - "/var/run/docker.sock:/var/run/docker.sock"
-      state: started
 
-
-# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureJenkins.yml --private-key=~/.ssh/MainVm_key.pem
-# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
-# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
-# sudo docker exec 16f8776ff088 cat /var/jenkins_home/secrets/initialAdminPassword
-# sudo docker stop 16f8776ff088
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureMacine.yml --private-key=~/.ssh/MainVm_key.pem
+# non automatedsteps: 
+# enter jenkins credential ( git & docker_hub)
+# sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose this for docker compose proplem

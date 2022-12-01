@@ -1,56 +1,64 @@
-version: '3.8'
-
-services: 
-  frontend:
-    image: waer/frontend
-    depends_on:
-      - backend
-    environment:
-      - FRONT_APP_API_BASE_URL=$CLIENT_API_BASE_URL
-    networks:
-      - frontend
-
-  backend:
-    depends_on:
-    - mongodb
-    image: waer/backend
-    restart: unless-stopped
-    env_file: ./.env
-    ports:
-      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
-    environment:
-      - DB_HOST=mongodb
-      - DB_USER=$MONGODB_USER
-      - DB_PASSWORD=$MONGODB_PASSWORD
-      - DB_NAME=$MONGODB_DATABASE
-      - DB_PORT=$MONGODB_DOCKER_PORT
-      - CLIENT_ORIGIN=$CLIENT_ORIGIN
-    networks:
-      - backend
-      - frontend
-
+version: "3"
+services:
 
   mongodb:
+    container_name: mongodb
     image: mongo
+    command: mongod --auth
     restart: unless-stopped
-    env_file: ./.env
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
-      - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
-    ports:
-      - $MONGODB_LOCAL_PORT:$MONGODB_DOCKER_PORT
-    volumes:
-      - db:/data/db
+    env_file: ./envfiles/DB.env
+    ports:  
+      - 27017:27017
     networks:
+      - private
+    volumes:
+      - /Read-it/mongoData:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  backend:
+    container_name: node
+    restart: unless-stopped
+    image: waer/backend:latest
+    env_file: ./envfiles/backend.env
+    networks:
+      - frontend_net
+      - private
+    depends_on:
+      - mongodb
+    ports:
+      - 3000:3000
+    links:
+      - mongodb
+    volumes:
+      - /Read-it/Backend:/usr/src/app/access.log
+    stdin_open: true
+    tty: true
+
+    
+  frontend:
+    container_name: Frontend
+    image: waer/frontend:latest
+    env_file: ./envfiles/frontend.env
+    networks:
+      - frontend_net
+    depends_on:
       - backend
+    ports:
+      - "5000:5000"
+      - "80:80"
+      - 443:443
+    restart: always
 
-
-
-volumes: 
-  db:
-
+  cypress:
+    image: waer/web_testing
+    depends_on:
+      - frontend
+    environment:
+      - CYPRESSBASEURL=http://frontend
+    working_dir: /home/node/app
+    command: npx cypress run
 
 
 networks:
-  backend:
-  frontend:
+  private:
+  frontend_net:

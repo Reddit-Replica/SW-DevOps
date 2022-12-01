@@ -1,0 +1,16 @@
+FROM cypress/base:lts
+
+RUN node --version
+
+RUN npm --version
+
+WORKDIR /home/node/app
+
+COPY index.html cypress.json package.json package-lock.json ./
+COPY cypress ./cypress
+
+ENV CI=1
+
+RUN npm ci
+
+RUN $(npm bin)/cypress verify
