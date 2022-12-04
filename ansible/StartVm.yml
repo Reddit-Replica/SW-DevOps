@@ -41,9 +41,19 @@
       cmd: "docker-compose down"
       chdir: /Read-it/deployment/
 
+  - name: make the log files empty
+    ansible.builtin.copy:
+      src: ./emptyfile
+      dest: /Read-it/Backend/log/access.log
+      mode: '0777'
+  
   - name: Pull the latest frontend image
     docker_image:
       name: "waer/frontend:latest"
+
+  - name: Pull the latest flutterweb image
+    docker_image:
+      name: "waer/flutterweb:latest"
 
   - name: Pull the latest backend image
     docker_image:
