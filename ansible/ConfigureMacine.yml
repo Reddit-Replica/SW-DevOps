@@ -83,6 +83,21 @@
       tag: v1
       source: build
 
+  - name: Create Docker Jenkins Container
+    docker_container:
+      name: jenkins
+      image: docker_jenkins:v1
+      ports:
+       - "8080:8080"
+       - "50000:50000"
+      volumes:
+       - "jenkins_home:/var/jenkins_home"
+       - "/var/run/docker.sock:/var/run/docker.sock"
+       - "/Read-it:/Read-it"
+       - "/Read-it-testing:/Read-it-testing"
+       - /usr/bin/docker:/usr/bin/docker
+      state: started
+
 
 
 # ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureMacine.yml --private-key=~/.ssh/MainVm_key.pem

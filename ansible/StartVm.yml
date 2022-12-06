@@ -16,23 +16,16 @@
       group: "root"
       mode: '0666'
 
-  - name: Create Docker Jenkins Container
-    docker_container:
-      name: jenkins
-      image: docker_jenkins:v1
-      ports:
-       - "8080:8080"
-       - "50000:50000"
-      volumes:
-       - "jenkins_home:/var/jenkins_home"
-       - "/var/run/docker.sock:/var/run/docker.sock"
-       - "/Read-it:/Read-it"
-       - /usr/bin/docker:/usr/bin/docker
-      state: started
+
 
   - name: Creates directory for backend logs
     file:
       path: /Read-it/Backend/log
+      state: directory
+
+  - name: Creates directory for mongodb
+    file:
+      path: /Read-it/mongoData
       state: directory
 
   - name: down application for check for new version
