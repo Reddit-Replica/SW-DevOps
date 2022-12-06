@@ -1,0 +1,46 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+
+  - name: copying deploment files
+    become: true 
+    copy:
+      src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Testing_enviroment/
+      dest: /Read-it-testing/deployment-testing
+
+  - name: Create Docker Jenkins Container
+    docker_container:
+      name: jenkins
+      image: docker_jenkins:v1
+      ports:
+       - "8080:8080"
+       - "50000:50000"
+      volumes:
+       - "jenkins_home:/var/jenkins_home"
+       - "/var/run/docker.sock:/var/run/docker.sock"
+       - "/Read-it:/Read-it"
+       - "/Read-it-testing:/Read-it-testing"
+       - /usr/bin/docker:/usr/bin/docker
+      state: started
+
+  - name: Creates directory for backend logs
+    file:
+      path: /Read-it-testing/Backend/log
+      state: directory
+      
+
+  - name: Creates directory for mongodb
+    file:
+      path: /Read-it-testing/mongoData
+      state: directory
+
+  - name: make the log files empty
+    ansible.builtin.copy:
+      src: ./emptyfile
+      dest: /Read-it-testing/Backend/log/access.log
+      mode: '0777'
+  
+# ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/prepareforTesting.yaml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
