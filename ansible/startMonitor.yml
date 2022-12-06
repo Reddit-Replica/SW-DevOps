@@ -1,0 +1,30 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+
+  - name: copying monitoring files
+    become: true 
+    copy:
+      src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/monitoring/
+      dest: /Read-it/Monitoring
+
+  - name: Change file ownership, group and permissions
+    command: sudo chown -R  65534 /Read-it/Monitoring/data/prometheus/
+
+  - name: Change file ownership, group and permissions
+    command: sudo chown -R  65534 /Read-it/Monitoring/data/prometheus/
+  
+  - name: deploy Docker Compose stack
+    docker_compose:
+      project_src: /Read-it/Monitoring/
+      files:
+      - docker-compose.yml
+      pull : yes
+
+
+# ssh -i ~/.ssh/MainVm_key.pem azureuser@read-it.francecentral.cloudapp.azure.com
+# ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/startMonitor.yml --private-key=~/.ssh/MainVm_key.pem
+# ansible all -i hosts -m ping --private-key=~/.ssh/MainVm_key.pem
+# sudo docker run -p 8085:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -d
+# sudo docker exec 7bf7addc5a37 cat /var/jenkins_home/secrets/initialAdminPassword
