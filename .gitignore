@@ -128,3 +128,9 @@ dist
 
 # Documentation
 docs/
+
+
+*.pem
+
+Privates
+private*
