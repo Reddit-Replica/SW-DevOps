@@ -12,20 +12,29 @@ pipeline {
                 sh """
                     docker pull waer/backend:latest
                     docker pull waer/frontend:latest
+                    docker pull waer/flutterweb:latest
                 """    
             }
 
         }
+
+        // stage("remove any unsued container or network"){
+        //     steps{
+        //         sh """
+        //         docker rm $(docker ps --filter status=exited -q)
+        //         docker system prune -a
+        //         """
+        //     }
+        // }
 
         stage("stop the current production"){
             steps{
                 sh """
                 cd /Read-it/deployment
                 ls
-                docker-compose down
+                docker-compose --compatibility down
                 """
             }
-
         }
 
         stage('start the new production') {
@@ -33,7 +42,7 @@ pipeline {
                 sh """
                 cd /Read-it/deployment
                 ls
-                docker-compose up -d
+                docker-compose --compatibility up -d
                 """
             }
         }

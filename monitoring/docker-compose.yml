@@ -44,7 +44,6 @@ services:
     volumes:
       - ./data/grafana:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD:${GF_PASS}
       - GF_USERS_ALLOW_SIGN_UP:false
       - GF_SERVER_DOMAIN:read-it.live
     ports:
