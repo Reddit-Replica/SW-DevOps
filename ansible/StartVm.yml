@@ -7,7 +7,7 @@
     become: true 
     copy:
       src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Docker-Compose/
-      dest: /Read-it/deployment
+      dest: /Read-it/deployment/
 
   - name: check permission of docker socke
     ansible.builtin.file:
@@ -16,6 +16,17 @@
       group: "root"
       mode: '0666'
 
+
+  - name: Creates directory for backend logs
+    file:
+      path: /Read-it/Backend/private
+      state: directory
+
+  - name: copying backend secret key
+    become: true 
+    copy:
+      src: /mnt/d/Created_by_me/SW_Reops/SW-DevOps/Privates/
+      dest: /Read-it/Backend/private/
 
 
   - name: Creates directory for backend logs
