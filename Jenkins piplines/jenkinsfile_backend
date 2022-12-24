@@ -23,9 +23,20 @@ pipeline {
       }
   }
 
+  stage('Build') {
+
+    steps {
+      sh 'docker build -t waer/backend:latest .'
+    }
+  }
+
   stage("intgration testing"){
     steps {
-              echo "till get its commanddsnnnsddder"
+          sh """
+            cd /Read-it-testing/deployment-testing
+            docker-compose up --exit-code-from cypress
+            docker wait cypress
+           """
       }
   }
 
@@ -33,13 +44,6 @@ pipeline {
 
 			steps {
 				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-    stage('Build') {
-
-			steps {
-				sh 'docker build -t waer/backend:latest .'
 			}
 		}
 
@@ -54,6 +58,11 @@ pipeline {
 	post {
 		always {
 			sh 'docker logout'
+      echo "------------------------------ down the Testing enviroment ---------------------------------------------"
+      sh"""
+        cd /Read-it-testing/deployment-testing
+        docker-compose down
+      """
 		}
 	}
 

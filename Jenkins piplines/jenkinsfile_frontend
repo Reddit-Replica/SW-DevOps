@@ -1,5 +1,8 @@
 pipeline {
   agent any
+triggers {
+    githubPush()
+  }
 
   	environment {
 		DOCKERHUB_CREDENTIALS=credentials('Dockerhub')
@@ -9,7 +12,7 @@ pipeline {
     stage("unit test"){
       agent {
         docker {
-            image 'node:lts'
+            image 'node:16.17.1'
             reuseNode true
         }
     }
@@ -22,22 +25,26 @@ pipeline {
       }
   }
 
+    stage('Build') {
+
+			steps {
+				sh 'docker build -t waer/frontend:latest .'
+			}
+		}
+
   stage("intgration testing"){
     steps {
-              echo "till get its waerrrrrrrrrrrrr"
+          sh """
+            cd /Read-it-testing/deployment-testing
+            docker-compose up --exit-code-from cypress
+            docker wait cypress
+           """
       }
   }
 
 		stage('Login') {
 			steps {
 				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-    stage('Build') {
-
-			steps {
-				sh 'docker build -t waer/frontend:latest .'
 			}
 		}
 
@@ -52,6 +59,11 @@ pipeline {
 	post {
 		always {
 			sh 'docker logout'
+      echo "------------------------------ down the Testing enviroment ---------------------------------------------"
+      sh"""
+        cd /Read-it-testing/deployment-testing
+        docker-compose down
+      """
 		}
 	}
 
