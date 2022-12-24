@@ -1,8 +1,19 @@
 version: "3"
 services:
 
+
+  frontend_test:
+    image: nginx
+    networks:
+      - private_test
+    restart: always
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+
   mongodb_test:
-    container_name: mongodb_test
     image: mongo
     command: mongod --auth
     restart: unless-stopped
@@ -10,36 +21,35 @@ services:
     networks:
       - private_test
     volumes:
-      - /Read-it-testing/mongoData:/data/db
+      - ../mongoData:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    
 
   backend:
-    container_name: node_test
     restart: unless-stopped
     image: waer/backend:latest
     env_file: ./envfiles/backend.env
     networks:
-      - frontend_test_net
       - private_test
     depends_on:
       - mongodb_test
     links:
       - mongodb_test
     volumes:
-       - /Read-it-testing/Backend/log/access.log:/usr/src/app/access.log
-    stdin_open: true
-    tty: true
-
+      - /Read-it/Backend/images/:/usr/src/app/images
+      - /Read-it/Backend/log/:/usr/src/app/logs
+      - /Read-it/Backend/videos/:/usr/src/app/videos
+      - /Read-it/Backend/private:/usr/src/app/private
     
-  frontend_test:
-    container_name: frontend_test
+  frontend:
     image: waer/frontend:latest
     env_file: ./envfiles/frontend.env
     networks:
-      - frontend_test_net
+      - private_test
     depends_on:
       - backend
     restart: always
+
 
   cypress:
     image: waer/web_testing
@@ -48,16 +58,15 @@ services:
     environment:
       - CYPRESSBASEURL=http://frontend_test
     networks:
-      - frontend_test_net
+      - private_test
     working_dir: /home/node/app
     command: npx cypress run
     deploy:
       resources:
         limits:
-          cpus: 0.3
-          memory: 2G
+          cpus: 0.8
+          memory: 4G
 
 
 networks:
   private_test:
-  frontend_test_net:
