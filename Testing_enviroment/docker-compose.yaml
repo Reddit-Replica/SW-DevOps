@@ -64,8 +64,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 0.8
-          memory: 4G
+          cpus: 0.4
+          memory: 2G
 
 
 networks:
