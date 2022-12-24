@@ -55,12 +55,6 @@
   #     group: "1000"
   #     path: /share/jenkins
   
-  # - name: check permission of docker socke
-  #   ansible.builtin.file:
-  #     path: /var/run/docker.sock
-  #     owner: "root"
-  #     group: "root"
-  #     mode: '0666'
 
   # - name: Pull the latest official jenkins docker image
   #   docker_image:
@@ -83,6 +77,14 @@
   #     tag: v1
   #     source: build
 
+
+  - name: check permission of docker socke
+    ansible.builtin.file:
+      path: /var/run/docker.sock
+      owner: "root"
+      group: "root"
+      mode: '0666'
+
   - name: Create Docker Jenkins Container
     docker_container:
       name: jenkins
@@ -97,8 +99,12 @@
        - "/Read-it-testing:/Read-it-testing"
        - /usr/bin/docker:/usr/bin/docker
       state: started
-      
+      restart_policy: always
 
+
+
+      
+      
 # ansible-playbook -i hosts /mnt/d/Created_by_me/SW_Reops/SW-DevOps/ansible/ConfigureMacine.yml --private-key=~/.ssh/MainVm_key.pem
 # non automatedsteps: 
 # enter jenkins credential ( git & docker_hub)

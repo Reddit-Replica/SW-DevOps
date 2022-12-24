@@ -36,15 +36,13 @@ services:
       - 8080
   
   grafana:
-    image: grafana/grafana:latest
     container_name: monitoring_grafana
+    image: grafana/grafana:latest
+    env_file: ./envFiles/grafana.env
     restart: unless-stopped
     links:
       - prometheus:prometheus
     volumes:
       - ./data/grafana:/var/lib/grafana
-    environment:
-      - GF_USERS_ALLOW_SIGN_UP:false
-      - GF_SERVER_DOMAIN:read-it.live
     ports:
       - 3010:3000

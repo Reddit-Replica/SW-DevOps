@@ -16,6 +16,21 @@
       group: "root"
       mode: '0666'
 
+  - name: Creates directory for certification
+    file:
+      path: /Read-it/certbot
+      state: directory
+
+  - name: Creates directory for certification www
+    file:
+      path: /Read-it/certbot/www
+      state: directory
+
+  - name: Creates directory for certification conf
+    file:
+      path: /Read-it/certbot/conf
+      state: directory
+
 
   - name: Creates directory for backend logs
     file:

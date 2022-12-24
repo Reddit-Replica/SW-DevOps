@@ -18,22 +18,14 @@ pipeline {
 
         }
 
-        // stage("remove any unsued container or network"){
-        //     steps{
-        //         sh """
-        //         docker rm $(docker ps --filter status=exited -q)
-        //         docker system prune -a
-        //         """
-        //     }
-        // }
-
         stage("stop the current production"){
             steps{
                 sh """
                 cd /Read-it/deployment
                 ls
-                docker-compose --compatibility down
+                docker-compose kill
                 """
+                sh "docker container prune -f"
             }
         }
 
@@ -46,6 +38,15 @@ pipeline {
                 """
             }
         }
+
+
+        stage("remove any unsued container or network"){
+            steps{
+                 sh "docker container prune -f"
+                 sh "docker system prune -a -f"
+            }
+        }
+
 
     }
 }
